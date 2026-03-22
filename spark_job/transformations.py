@@ -67,7 +67,7 @@ def quarterly_sales(df, spark):
         df_quarterly.groupBy("year", "quarter")
             .agg(
                 _sum("total_sales").alias("total_sales"),
-                count("total_orders").alias("total_orders"),
+                _sum("total_orders").alias("total_orders"),
                 _sum("total_units").alias("total_units"),
             )
             .withColumn(

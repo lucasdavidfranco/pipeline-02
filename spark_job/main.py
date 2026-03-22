@@ -10,36 +10,51 @@ def main():
     
     print("Spark session created")
 
-    df = spark.read.csv("data/raw/sales.csv", header=True, inferSchema=True)
-
+    raw_df = spark.read.csv("data/raw/sales.csv", header=True, inferSchema=True)
     print("Read csv data")
-    df.show(5)
+    print(f"Raw base rows scanned: {raw_df.count()}")
+    raw_df.show(5)
 
     print("Start transformations...")
 
-    df = add_sales_amount(df)
-    df = add_date_columns(df)
-    df = add_quarter(df, spark)
+    base_df = add_sales_amount(raw_df)
+    base_df = add_date_columns(base_df)
+    base_df = add_quarter(base_df, spark)
+    base_df = base_df.repartition("year", "month")
 
     print("Applied transformation on base table")
-
-    df.show(5)
+    print(f"Raw base rows transformed: {base_df.count()}")
+    base_df.show(5)
 
     print("Start aggregations...")
     
-    df_agg = aggregate_sales(df)
+    df_agg = aggregate_sales(base_df)
+    df_agg = df_agg.repartition("year", "month")
+
     df_quarterly = quarterly_sales(df_agg, spark)
-    df_top = top_products(df_agg) 
+    df_quarterly = df_quarterly.repartition("year", "quarter")
+
+    df_top = top_products(df_agg)
+    df_top = df_top.repartition("year", "month")
 
     print("Created aggregations")
 
+    print(f"Agg base rows calculated: {df_agg.count()}")
     df_agg.show(5)
+    print(f"Quarterly base rows calculated: {df_quarterly.count()}")
     df_quarterly.show(5)
+    print(f"Top 3 base rows calculated: {df_top.count()}")
     df_top.show(5)
+
+    raw_df.printSchema()
+    base_df.printSchema()
+    df_agg.printSchema()
+    df_quarterly.printSchema()
+    df_top.printSchema()
 
     print("Start data storage...")
 
-    df.write \
+    base_df.write \
         .partitionBy("year", "month") \
         .mode("overwrite") \
         .parquet("data/processed/sales")

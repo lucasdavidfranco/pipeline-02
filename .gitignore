@@ -210,4 +210,4 @@ __marimo__/
 # samples_bases 
 
 sales.csv
-data/processed/sales/*
+data/processed/*

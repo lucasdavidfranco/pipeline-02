@@ -212,3 +212,4 @@ __marimo__/
 sales.csv
 data/processed/sales*
 data/processed/top*
+data/processed/airflow

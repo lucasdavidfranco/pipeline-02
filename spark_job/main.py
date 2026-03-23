@@ -18,8 +18,14 @@ from spark_job.config import (
     PROCESSED_QUARTERLY_PATH,
     TOP_PATH
 )
+import shutil
+import os
 
 logger = get_logger()
+
+def safe_delete(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
 
 def main():
 
@@ -79,8 +85,9 @@ def main():
         logger.info(f"Top 3 base rows calculated: {df_top.count()}")
         logger.info(df_top.show(5))
 
-
         logger.info("Start data storage...")
+
+        safe_delete(PROCESSED_SALES_PATH)
 
         base_df.write \
             .partitionBy("year", "month") \
@@ -89,6 +96,8 @@ def main():
 
         logger.info(f"Detail data stored in {PROCESSED_SALES_PATH}")
 
+        safe_delete(PROCESSED_AGG_PATH)
+
         df_agg.write \
             .partitionBy("year", "month") \
             .mode("overwrite") \
@@ -96,12 +105,16 @@ def main():
 
         logger.info(f"Aggregated data stored in {PROCESSED_AGG_PATH}")
 
+        safe_delete(PROCESSED_QUARTERLY_PATH)
+
         df_quarterly.write \
             .partitionBy("year", "quarter") \
             .mode("overwrite") \
             .parquet(PROCESSED_QUARTERLY_PATH)
 
         logger.info(f"Quarterly data stored in {PROCESSED_QUARTERLY_PATH}")
+
+        safe_delete(TOP_PATH)
 
         df_top.write \
             .partitionBy("year", "month") \

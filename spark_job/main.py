@@ -1,6 +1,6 @@
 
 from pyspark.sql import SparkSession
-from transformations import (
+from spark_job.transformations import (
     add_sales_amount, 
     add_date_columns, 
     add_quarter, 
@@ -8,9 +8,9 @@ from transformations import (
     quarterly_sales,
     top_products
 )
-from logger import get_logger
-from validations import validate_sales_data, drop_duplicate_orders
-from config import (
+from spark_job.logger import get_logger
+from spark_job.validations import validate_sales_data, drop_duplicate_orders
+from spark_job.config import (
     APP_NAME,
     RAW_PATH,
     PROCESSED_SALES_PATH,

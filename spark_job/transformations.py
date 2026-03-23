@@ -1,4 +1,15 @@
-from pyspark.sql.functions import col, year, month, day, round, sum as _sum, count, when, rank
+from pyspark.sql.functions import (
+    col, 
+    year, 
+    month,
+    day, 
+    round,
+    sum as _sum,
+    count,
+    when, 
+    rank,
+    current_timestamp
+)
 from pyspark.sql.window import Window
 
 def add_sales_amount(df):
@@ -9,6 +20,7 @@ def add_date_columns(df):
         df.withColumn("year", year(col("sales_datetime")))
             .withColumn("month", month(col("sales_datetime")))
             .withColumn("day", day(col("sales_datetime")))
+            .withColumn("created_at", current_timestamp()) 
     )
 
 def add_quarter(df, spark):
@@ -47,6 +59,9 @@ def aggregate_sales(df):
                     col("total_sales") / col("total_units")
                 )
             )
+            .withColumn(
+                "created_at", current_timestamp()
+            )
             .select(
                 "year",
                 "month",
@@ -54,7 +69,8 @@ def aggregate_sales(df):
                 round(col("total_sales"),2).alias("total_sales"),
                 "total_orders",
                 "total_units",
-                round(col("asp"), 2).alias("asp")
+                round(col("asp"), 2).alias("asp"),
+                "created_at"
             )
             .orderBy("year", "month", "product")
     )
@@ -77,13 +93,17 @@ def quarterly_sales(df, spark):
                     col("total_sales") / col("total_units")
                 )
             )
+            .withColumn(
+                "created_at", current_timestamp()
+            )
             .select(
                 "year",
                 "quarter",
                 round(col("total_sales"),2).alias("total_sales"),
                 "total_orders",
                 "total_units",
-                round(col("asp"), 2).alias("asp")
+                round(col("asp"), 2).alias("asp"),
+                "created_at"
             )
             .orderBy("year", "quarter")
     )

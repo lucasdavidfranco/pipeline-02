@@ -1,4 +1,3 @@
-
 APP_NAME = "sales-batch-job"
 RAW_PATH = "data/raw/sales.csv"
 PROCESSED_SALES_PATH = "data/processed/sales"

@@ -1,7 +1,7 @@
 import os
 import random
 from datetime import datetime, timedelta
-
+from spark_job.config import RAW_PATH
 import pandas as pd
 
 def generate_sales_data(num_rows: int = 100000):
@@ -47,7 +47,7 @@ def generate_sales_data(num_rows: int = 100000):
     print(df.head(10))
     print(df.dtypes)
 
-    df.to_csv("data/raw/sales.csv", index=False)    
+    df.to_csv(RAW_PATH, index=False)    
     print(f"CSV generado correctamente con {num_rows} filas en data/raw/sales.csv")
 
 if __name__ == "__main__":
